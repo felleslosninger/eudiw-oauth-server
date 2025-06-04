@@ -1,10 +1,10 @@
 ---
 server:
-  port: 9226
+  port: 9260
 
 management:
   server:
-    port: 9226
+    port: 9261
   endpoint:
     health:
       show-details: always

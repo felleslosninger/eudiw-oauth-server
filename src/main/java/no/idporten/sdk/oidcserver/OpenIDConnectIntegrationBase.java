@@ -296,7 +296,7 @@ public class OpenIDConnectIntegrationBase implements OpenIDConnectIntegration {
             }
             clientMetadata = authenticateClient(clientId, clientSecret);
             clientAuthentication = ClientAuthentication.builder().clientId(clientMetadata.getClientId()).tokenEndpointAuthMethod("client_secret_basic").build();
-        } else { // TODO NONE eller ....?
+        } else if (authenticatedRequest.isNone()) {
             if (authenticatedRequest instanceof PushedAuthorizationRequest) {
                 clientMetadata = ClientMetadata.builder().clientId(authenticatedRequest.getClientId())
                         .redirectUri(((PushedAuthorizationRequest) authenticatedRequest).getRedirectUri()).build();
@@ -304,6 +304,8 @@ public class OpenIDConnectIntegrationBase implements OpenIDConnectIntegration {
                 clientMetadata = ClientMetadata.builder().clientId(authenticatedRequest.getClientId()).build();
             }
             clientAuthentication = ClientAuthentication.builder().clientId(clientMetadata.getClientId()).tokenEndpointAuthMethod("none").build();
+        } else {
+            throw new OAuth2Exception(OAuth2Exception.INVALID_CLIENT, "Invalid client authentication. Unknown client authentication method.", 401);
         }
         if (hasText(authenticatedRequest.getClientId()) && !Objects.equals(authenticatedRequest.getClientId(), clientMetadata.getClientId())) {
             throw new OAuth2Exception(OAuth2Exception.INVALID_CLIENT, "Invalid client authentication. Client authentication does not match parameter client_id.", 401);

@@ -259,7 +259,6 @@ public class OpenIDConnectIntegrationBase implements OpenIDConnectIntegration {
         sdkConfiguration.getAuditLogger().auditAuthorization(authorization);
         TokenResponse tokenResponse = createTokenResponse(authorization);
         return DirectPushedAuthorizationResponse.builder()
-                .idToken(tokenResponse.getIdToken())
                 .accessToken(tokenResponse.getAccessToken())
                 .state(authorizationRequest.getState())
                 .expiresIn(sdkConfiguration.getAccessTokenLifetimeSeconds())
@@ -472,7 +471,7 @@ public class OpenIDConnectIntegrationBase implements OpenIDConnectIntegration {
     }
 
     /**
-     * Processes the token request and creates a token response.  Builds and signs id_token.
+     * Processes the token request and creates a token response.  Builds and signs tokens.
      *
      * @param tokenRequest OAuth2 token request
      * @return token response
@@ -518,23 +517,28 @@ public class OpenIDConnectIntegrationBase implements OpenIDConnectIntegration {
 
     protected final TokenResponse createTokenResponse(Authorization authorization) throws JOSEException {
         validateAuthorization(authorization);
-        JWTClaimsSet.Builder jwtClaimsSetBuilder = new JWTClaimsSet.Builder()
-                .jwtID(generateId())
-                .issuer(sdkConfiguration.getIssuer().toString())
-                .audience(authorization.getAud())
-                .expirationTime(new Date(new Date().getTime() + (sdkConfiguration.getIdTokenLifetimeSeconds() * 1000)))
-                .issueTime(new Date())
-                .claim("auth_time", new Date().getTime() / 1000)
-                .claim("nonce", authorization.getNonce())
-                .subject(authorization.getSub())
-                .claim("acr", authorization.getAcr());
-        if (hasText(authorization.getAmr())) {
-            jwtClaimsSetBuilder.claim("amr", authorization.getAmr().split(",\\s*"));
+        boolean isOpenIDConnect = authorization.getAttributes().containsKey("scope") && authorization.getAttributes().get("scope").toString().contains("openid");
+        String idToken = null;
+        if (isOpenIDConnect) {
+            JWTClaimsSet.Builder jwtClaimsSetBuilder = new JWTClaimsSet.Builder()
+                    .jwtID(generateId())
+                    .issuer(sdkConfiguration.getIssuer().toString())
+                    .audience(authorization.getAud())
+                    .expirationTime(new Date(new Date().getTime() + (sdkConfiguration.getIdTokenLifetimeSeconds() * 1000)))
+                    .issueTime(new Date())
+                    .claim("auth_time", new Date().getTime() / 1000)
+                    .claim("nonce", authorization.getNonce())
+                    .subject(authorization.getSub())
+                    .claim("acr", authorization.getAcr());
+            if (hasText(authorization.getAmr())) {
+                jwtClaimsSetBuilder.claim("amr", authorization.getAmr().split(",\\s*"));
+            }
+            authorization.getAttributes().entrySet().forEach(attribute -> jwtClaimsSetBuilder.claim(attribute.getKey(), attribute.getValue()));
+            idToken = signJwt(jwtClaimsSetBuilder.build());
         }
-        authorization.getAttributes().entrySet().forEach(attribute -> jwtClaimsSetBuilder.claim(attribute.getKey(), attribute.getValue()));
-        String serializedJWT = signJwt(jwtClaimsSetBuilder.build());
         return TokenResponse.builder()
-                .idToken(serializedJWT)
+                // TODO access_token egen sak, fjerne id_tokenb
+                .idToken(idToken)
                 .accessToken(generateId())
                 .expiresInSeconds(sdkConfiguration.getAccessTokenLifetimeSeconds())
                 .build();

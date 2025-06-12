@@ -456,7 +456,7 @@ public class OpenIDConnectIntegrationBase implements OpenIDConnectIntegration {
         sdkConfiguration.getAuditLogger().auditAuthorization(authorization);
         AuthorizationResponse authorizationResponse = AuthorizationResponse.builder()
                 .redirectUri(pushedAuthorizationRequest.getRedirectUri())
-                .aud(pushedAuthorizationRequest.getResource())
+                .aud(pushedAuthorizationRequest.getClientId())
                 .iss(sdkConfiguration.isAuthorizationResponseIssParameterSupported() ? sdkConfiguration.getIssuer().toString() : null)
                 .responseMode(pushedAuthorizationRequest.getResolvedResponseMode())
                 .code(code)

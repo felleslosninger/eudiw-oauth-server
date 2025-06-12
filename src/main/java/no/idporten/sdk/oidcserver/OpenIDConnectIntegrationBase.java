@@ -14,6 +14,7 @@ import no.idporten.sdk.oidcserver.protocol.*;
 import no.idporten.sdk.oidcserver.util.StringUtils;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -203,7 +204,12 @@ public class OpenIDConnectIntegrationBase implements OpenIDConnectIntegration {
     @SuppressWarnings("unused")
     protected void validateResource(PushedAuthorizationRequest authorizationRequest, ClientMetadata clientMetadata) {
         if (authorizationRequest.getResource() != null) {
-            URI uri = URI.create(authorizationRequest.getResource());
+            final URI uri;
+            try {
+                uri = new URI(authorizationRequest.getResource());
+            } catch (URISyntaxException e) {
+                throw new OAuth2Exception(OAuth2Exception.INVALID_TARGET, "Invalid parameter resource.", 400);
+            }
             if (! uri.isAbsolute()) {
                 throw new OAuth2Exception(OAuth2Exception.INVALID_TARGET, "Invalid parameter resource. Must be absolute.", 400);
             }

@@ -447,6 +447,7 @@ public class OpenIDConnectIntegrationBase implements OpenIDConnectIntegration {
         authorization.setLifetimeSeconds(sdkConfiguration.getAuthorizationLifetimeSeconds());
         authorization.setClientId(pushedAuthorizationRequest.getClientId());
         authorization.setAud(pushedAuthorizationRequest.getResource());
+        authorization.setScope(String.join(" ", pushedAuthorizationRequest.getScope()));
         if (!hasText(authorization.getAcr())) {
             authorization.setAcr(pushedAuthorizationRequest.getResolvedAcrValue());
         }
@@ -544,7 +545,7 @@ public class OpenIDConnectIntegrationBase implements OpenIDConnectIntegration {
 
     protected final TokenResponse createTokenResponse(Authorization authorization) throws JOSEException {
         validateAuthorization(authorization);
-        boolean isOpenIDConnect = authorization.getAttributes().containsKey("scope") && authorization.getAttributes().get("scope").toString().contains("openid");
+        boolean isOpenIDConnect = authorization.getScope().contains("openid");
         return TokenResponse.builder()
                 .idToken(isOpenIDConnect ? createIDToken(authorization) : null)
                 .accessToken(createAccessToken(authorization))

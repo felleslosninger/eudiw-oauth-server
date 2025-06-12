@@ -27,10 +27,11 @@ public class Authorization implements Cacheable, AuditDataProvider {
     @Singular("attribute")
     private Map<String, Serializable> attributes = new HashMap<>();
     private String code;
+    private String scope;
     private String nonce;
     private String codeChallenge;
-    private String aud;
     private String clientId;
+    private String aud;
     private String sub;
     private String amr;
     private String acr;

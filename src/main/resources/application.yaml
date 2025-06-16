@@ -42,7 +42,7 @@ digdir:
     filters:
       admin-header: false
       bearer-token: false
-      correlation-id: true
+      correlation-id: false
       ip-address: true
     prometheus:
       counter: true

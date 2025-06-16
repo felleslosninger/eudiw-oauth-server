@@ -79,8 +79,6 @@ public class OpenIDConnectIntegrationBase implements OpenIDConnectIntegration {
         validateResponseType(authorizationRequest, clientMetadata);
         validateCodeChallenge(authorizationRequest, clientMetadata);
         validateScope(authorizationRequest, clientMetadata);
-        validateAcrValues(authorizationRequest, clientMetadata);
-        validateUiLocales(authorizationRequest, clientMetadata);
         validateResponseMode(authorizationRequest, clientMetadata);
         validateState(authorizationRequest, clientMetadata);
         validateNonce(authorizationRequest, clientMetadata);
@@ -128,42 +126,10 @@ public class OpenIDConnectIntegrationBase implements OpenIDConnectIntegration {
         if (authorizationRequest.getScope().isEmpty()) {
             throw new OAuth2Exception(OAuth2Exception.INVALID_SCOPE, "No scopes requested.", 400);
         }
-        // TODO
-//        if (!authorizationRequest.getScope().contains("openid")) {
-//            throw new OAuth2Exception(OAuth2Exception.INVALID_SCOPE, "Not an OpenID Connect request.", 400);
-//        }
-//        if (!clientMetadata.getScopes().containsAll(authorizationRequest.getScope())) {
-//            log.info("Invalid scopes [{}] for client [{}]", authorizationRequest.getScope(), clientMetadata.getClientId());
-//            throw new OAuth2Exception(OAuth2Exception.INVALID_SCOPE, "Client does not have access to all of the requested scopes.", 400);
-//        }
     }
 
-    @SuppressWarnings("unused")
-    protected void validateAcrValues(PushedAuthorizationRequest authorizationRequest, ClientMetadata clientMetadata) {
-        // TODO
-//        if (!sdkConfiguration.getAcrValues().containsAll(authorizationRequest.getAcrValues())) {
-//            throw new OAuth2Exception(OAuth2Exception.INVALID_REQUEST, "Invalid parameter acr_values. Requested values not supported.", 400);
-//        }
-//        if (authorizationRequest.getAcrValues().isEmpty()) {
-//            authorizationRequest.setResolvedAcrValue(sdkConfiguration.getAcrValues().get(0));
-//        } else {
-//            authorizationRequest.setResolvedAcrValue(authorizationRequest.getAcrValues().get(0));
-//        }
-    }
 
-    @SuppressWarnings("unused")
-    protected void validateUiLocales(PushedAuthorizationRequest authorizationRequest, ClientMetadata clientMetadata) {
-        // TODO
-//        if (authorizationRequest.getUiLocales().isEmpty()) {
-//            authorizationRequest.setResolvedUiLocale(sdkConfiguration.getUiLocales().get(0));
-//        } else {
-//            authorizationRequest.setResolvedUiLocale(
-//                    authorizationRequest.getUiLocales().stream()
-//                            .filter(uiLocale -> sdkConfiguration.getUiLocales().contains(uiLocale))
-//                            .findFirst()
-//                            .orElse(sdkConfiguration.getUiLocales().get(0)));
-//        }
-    }
+
 
     @SuppressWarnings("unused")
     protected void validateResponseMode(PushedAuthorizationRequest authorizationRequest, ClientMetadata clientMetadata) {
@@ -649,7 +615,7 @@ public class OpenIDConnectIntegrationBase implements OpenIDConnectIntegration {
         if (tokenRequest == null) {
             throw new OAuth2Exception(OAuth2Exception.INVALID_REQUEST, "Empty or missing request.", 400);
         }
-        if (!"authorization_code".equals(tokenRequest.getGrantType())) {
+        if (!hasText(tokenRequest.getGrantType()) || !sdkConfiguration.getGrantTypesSupported().contains(tokenRequest.getGrantType())) {
             throw new OAuth2Exception(OAuth2Exception.UNSUPPORTED_GRANT_TYPE, "Invalid parameter grant_type. Only authorization_code supported.", 400);
         }
         if (!hasText(tokenRequest.getCode())) {

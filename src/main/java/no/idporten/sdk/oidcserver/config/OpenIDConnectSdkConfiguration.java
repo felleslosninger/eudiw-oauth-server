@@ -250,7 +250,7 @@ public final class OpenIDConnectSdkConfiguration {
      * @param clientId
      * @return client or null if not found
      */
-    public final ClientMetadata findClient(String clientId) {
+    public ClientMetadata findClient(String clientId) {
         return clients.stream()
                 .filter(clientMetadata -> Objects.equals(clientId, clientMetadata.getClientId()))
                 .findFirst()
@@ -258,7 +258,6 @@ public final class OpenIDConnectSdkConfiguration {
     }
 
     public void validate() {
-        // TODO
         validateUri("issuer", true, issuer);
         validateUri("pushedAuthorizationRequestEndpoint", false, pushedAuthorizationRequestEndpoint);
         validateUri("authorizationEndpoint", false, authorizationEndpoint);
@@ -269,18 +268,15 @@ public final class OpenIDConnectSdkConfiguration {
         validateLifetime("authorizationLifetimeSeconds", authorizationLifetimeSeconds);
         validateLifetime("idTokenLifetimeSeconds", idTokenLifetimeSeconds);
         validateClients();
-//        validateList("acrValues", true, acrValues);
-//        validateList("uiLocales", true, uiLocales);
         validateList("responseModes", true, responseModes, "query", "form_post", "query.jwt");
         validateScopes();
-//        validateList("claimsSupported", false, claimsSupported);
         validateCodeChallengeMethods();
         Objects.requireNonNull(jwk);
         Objects.requireNonNull(defaultSigningAlgorithm);
         Objects.requireNonNull(tokenEndpointAuthSigningAlgValuesSupported);
     }
 
-    protected final void validateRequiredProperty(String property, Object value) {
+    protected void validateRequiredProperty(String property, Object value) {
         if (value == null) {
             throw new IllegalArgumentException("The SDK requires a value for %s.".formatted(property));
         }
@@ -289,7 +285,7 @@ public final class OpenIDConnectSdkConfiguration {
         }
     }
 
-    protected final void validateUri(String property, boolean required, URI uri)  {
+    protected void validateUri(String property, boolean required, URI uri)  {
         if (required) {
             validateRequiredProperty(property, uri);
         }
@@ -304,13 +300,13 @@ public final class OpenIDConnectSdkConfiguration {
         }
     }
 
-    protected final void validateLifetime(String property, int lifetime) {
+    protected void validateLifetime(String property, int lifetime) {
         if (lifetime <= 0) {
             throw new IllegalArgumentException("The SDK requires a positive lifetime for %s.".formatted(property));
         }
     }
 
-    protected final void validateClients() {
+    protected void validateClients() {
         if (clients == null || clients.isEmpty()) {
 // TODO            throw new IllegalArgumentException("The SDK requires a list of client metadata");
         }
@@ -324,16 +320,14 @@ public final class OpenIDConnectSdkConfiguration {
         }
     }
 
-    protected final void validateScopes() {
+    protected void validateScopes() {
         if (scopesSupported == null || scopesSupported.isEmpty()) {
             throw new IllegalArgumentException("The SDK requires a list of supported scopes");
         }
-        if (! scopesSupported.contains("openid")) {
-            throw new IllegalArgumentException("The SDK requires that the openid scope is supported");
-        }
+
     }
 
-    protected final void validateCodeChallengeMethods()  {
+    protected void validateCodeChallengeMethods()  {
         if (requirePkce && codeChallengeMethodsSupported.isEmpty()) {
             throw new IllegalArgumentException("The SDK requires a list of supported code challenge methods when PKCE is required");
         }
@@ -342,7 +336,7 @@ public final class OpenIDConnectSdkConfiguration {
         }
     }
 
-    protected final void validateList(String property, boolean required, Collection<String> list, String... acceptedValues) {
+    protected void validateList(String property, boolean required, Collection<String> list, String... acceptedValues) {
         if (required && (list == null || list.isEmpty())) {
             throw new IllegalArgumentException("The SDK requires a list of values for %s.".formatted(property));
         }
@@ -353,23 +347,15 @@ public final class OpenIDConnectSdkConfiguration {
             throw new IllegalArgumentException("The SDK requires a list of non-empty values for %s.".formatted(property));
         }
         if (acceptedValues.length > 0) {
-            List<String> accepted = List.of(acceptedValues);
-            if (! list.stream().allMatch(s -> accepted.contains(s))) {
+            Set<String> accepted = Set.of(acceptedValues);
+            if (!accepted.containsAll(list)) {
                 throw new IllegalArgumentException("The SDK detected illegal values in list of values for %s.".formatted(property));
             }
         }
     }
 
-    public boolean supportsScope(String scope) {
-        return getScopesSupported().contains(scope);
-    }
-
     public boolean supportsAuthorizationDetailsType(String type) {
         return getAuthorizationDetailsTypesSupported().contains(type);
-    }
-
-    public boolean supportsClaim(String claim) {
-        return getClaimsSupported().contains(claim);
     }
 
     /**

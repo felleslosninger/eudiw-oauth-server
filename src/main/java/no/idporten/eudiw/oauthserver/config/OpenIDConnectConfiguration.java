@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import no.idporten.eudiw.oauthserver.audit.AuditService;
 import no.idporten.eudiw.oauthserver.crypto.KeyStoreProperties;
 import no.idporten.eudiw.oauthserver.crypto.KeyStoreProvider;
 import no.idporten.sdk.oidcserver.OpenIDConnectIntegration;
@@ -70,7 +71,7 @@ public class OpenIDConnectConfiguration implements InitializingBean {
     }
 
     @Bean
-    public OpenIDConnectSdkConfiguration openIDConnectSdkConfig() throws Exception {
+    public OpenIDConnectSdkConfiguration openIDConnectSdkConfig(AuditService auditService) throws Exception {
         OpenIDConnectSdkConfiguration.OpenIDConnectSdkConfigurationBuilder builder =
                 OpenIDConnectSdkConfiguration.builder()
                         .internalId(internalId)
@@ -87,6 +88,7 @@ public class OpenIDConnectConfiguration implements InitializingBean {
                         .scopesSupported(scopesSupported)
                         .authorizationDetailsTypeSupported("openid_credential")
                         .cache(new SimpleOpenIDConnectCache())
+                        .auditLogger(auditService);
         ;
         if (keyStore == null) {
             builder.jwk(generateServerECKey());

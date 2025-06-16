@@ -50,6 +50,7 @@ public class OpenIDConnectIntegrationBase implements OpenIDConnectIntegration {
                 .tokenEndpoint(sdkConfiguration.getTokenEndpoint())
                 .userinfoEndpoint(sdkConfiguration.getUserinfoEndpoint())
                 .jwksUri(sdkConfiguration.getJwksUri())
+                .grantTypesSupported(sdkConfiguration.getGrantTypesSupported())
                 .acrValuesSupported(sdkConfiguration.getAcrValues())
                 .uiLocalesSupported(sdkConfiguration.getUiLocales())
                 .codeChallengeMethodsSupported(sdkConfiguration.getCodeChallengeMethodsSupported())
@@ -248,8 +249,8 @@ public class OpenIDConnectIntegrationBase implements OpenIDConnectIntegration {
     /**
      * Extension point for custom pushed authorization request handling.
      *
-     * @param authorizationRequest
-     * @return
+     * @param authorizationRequest the pushed authorization request
+     * @return PushedAuthorizationResponse
      */
     protected PushedAuthorizationResponse createResponse(PushedAuthorizationRequest authorizationRequest) {
         return createPushedAuthorizationResponse(authorizationRequest);
@@ -258,7 +259,7 @@ public class OpenIDConnectIntegrationBase implements OpenIDConnectIntegration {
     /**
      * Creates a pushed authorization response to the pushed authorization request.  Clients must redirect the browser
      * to the authorization endpoint.
-     * @param authorizationRequest
+     * @param authorizationRequest client authz request
      * @return pushed authorization response with request_uri
      */
     protected final PushedAuthorizationResponse createPushedAuthorizationResponse(PushedAuthorizationRequest authorizationRequest) {
@@ -490,7 +491,7 @@ public class OpenIDConnectIntegrationBase implements OpenIDConnectIntegration {
         Objects.requireNonNull(clientMetadata);
         Objects.requireNonNull(error);
         AuthorizationResponse authorizationResponse = AuthorizationResponse.builder()
-                .redirectUri(clientMetadata.getRedirectUris().get(0))
+                .redirectUri(clientMetadata.getRedirectUris().getFirst())
                 .aud(clientMetadata.getClientId())
                 .iss(sdkConfiguration.isAuthorizationResponseIssParameterSupported() ? sdkConfiguration.getIssuer().toString() : null)
                 .responseMode("query.jwt")
@@ -631,7 +632,7 @@ public class OpenIDConnectIntegrationBase implements OpenIDConnectIntegration {
                         .jwtID(generateId())
                         .audience(authorizationResponse.getAud())
                         .issuer(sdkConfiguration.getIssuer().toString())
-                        .expirationTime(new Date(new Date().getTime() + (sdkConfiguration.getAuthorizationLifetimeSeconds() * 1000)))
+                        .expirationTime(new Date(new Date().getTime() + (sdkConfiguration.getAuthorizationLifetimeSeconds() * 1000L)))
                         .issueTime(new Date());
                 authorizationResponse.toResponseParameters().forEach(jwtClaimsSetBuilder::claim);
                 return new RedirectedResponse(authorizationResponse.getRedirectUri(), Map.of("response", signJwt(jwtClaimsSetBuilder.build())));
@@ -660,7 +661,7 @@ public class OpenIDConnectIntegrationBase implements OpenIDConnectIntegration {
         if (!hasText(tokenRequest.getCodeVerifier()) && getSDKConfiguration().isRequirePkce()) {
             throw new OAuth2Exception(OAuth2Exception.INVALID_REQUEST, "Missing parameter code_verifier. PKCE is required.", 400);
         }
-        if (hasText(tokenRequest.getCodeVerifier()) && !tokenRequest.getCodeVerifier().matches("^[A-Za-z0-9\\-\\._~]{43,128}$")) {
+        if (hasText(tokenRequest.getCodeVerifier()) && !tokenRequest.getCodeVerifier().matches("^[A-Za-z0-9\\-._~]{43,128}$")) {
             throw new OAuth2Exception(OAuth2Exception.INVALID_REQUEST, "Invalid parameter code_verifier.", 400);
         }
     }
@@ -677,10 +678,7 @@ public class OpenIDConnectIntegrationBase implements OpenIDConnectIntegration {
         }
         byte[] hash = digest.digest(codeVerifier.getBytes(StandardCharsets.US_ASCII));
         byte[] decode = Base64.getUrlDecoder().decode(codeChallenge);
-        if (!Arrays.equals(hash, decode)) {
-            return false;
-        }
-        return true;
+        return Arrays.equals(hash, decode);
     }
 
     @Override

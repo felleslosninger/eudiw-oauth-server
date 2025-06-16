@@ -44,6 +44,10 @@ public class OpenIDConnectConfiguration implements InitializingBean {
 //    private List<String> uiLocales;
 //    @NotEmpty
 //    private List<String> acrValues;
+
+    @NotEmpty
+    private List<String> grantTypesSupported;
+
     @NotEmpty
     private List<String> scopesSupported;
 //    private List<String> claimsSupported = new ArrayList<>();
@@ -86,6 +90,7 @@ public class OpenIDConnectConfiguration implements InitializingBean {
                         .authorizationEndpoint(UriComponentsBuilder.fromUri(issuer).path("/authorize").build().toUri())
                         .tokenEndpoint(UriComponentsBuilder.fromUri(issuer).path("/token").build().toUri())
                         .jwksUri(UriComponentsBuilder.fromUri(issuer).path("/jwks").build().toUri())
+                        .grantTypesSupported(grantTypesSupported)
                         .authorizationRequestLifetimeSeconds(parLifetimeSeconds)
                         .authorizationLifetimeSeconds(authorizationLifetimeSeconds)
                         .requirePkce(requirePkce)
@@ -95,6 +100,7 @@ public class OpenIDConnectConfiguration implements InitializingBean {
                         .scopesSupported(scopesSupported)
 //                        .claimsSupported(claimsSupported)
 //                        .clients(clients);
+                        .authorizationDetailsTypeSupported("openid_credential")
                         .cache(new SimpleOpenIDConnectCache())
         ;
         if (keyStore == null) {

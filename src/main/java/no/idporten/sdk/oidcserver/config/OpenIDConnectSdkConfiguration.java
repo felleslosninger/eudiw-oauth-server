@@ -31,29 +31,28 @@ public final class OpenIDConnectSdkConfiguration {
 
     /**
      * OAuth2 issuer uri.  The base uri for this server.  The discovery endpoint must be served relative to this uri.
-     *
-     * @param issuer servers issuer uri
      */
     private URI issuer;
 
     /**
+     * The set of response types supported by this OAuth2 server.
+     * Default is "code" OAuth2.
+     */
+    @Builder.Default
+    private List<String> grantTypesSupported = List.of("authorization_code");
+
+    /**
      * Uri to endpoint for pushed authorization requests to this server.
-     *
-     * @param pushedAuthorizationRequestEndpoint uri
      */
     private URI pushedAuthorizationRequestEndpoint;
 
     /**
      * Uri to endpoint for authorization requests to this server.
-     *
-     * @param authorizationEndpoint uri
      */
     private URI authorizationEndpoint;
 
     /**
      * Uri to endpoint for token requests to this server.
-     *
-     * @param tokenEndpoint uri
      */
     private URI tokenEndpoint;
 
@@ -65,78 +64,58 @@ public final class OpenIDConnectSdkConfiguration {
 
     /**
      * Uri to endpoint for json web keys used by this server.
-     *
-     * @param jwksUri uri
      */
     private URI jwksUri;
 
     /**
      * Uri to endpoint for userinfo requests to this server.  It is optional to implement this endpoint.
-     *
-     * @param userinfoEndpoint uri
      */
     private URI userinfoEndpoint;
 
     /**
      * Internal id used in generated keys for OAuth2 par request_uri.
-     *
-     * @param internalId id
      */
     @Builder.Default
     private String internalId = "idporten";
 
     /**
      * The set of scopes supported by this OAuth2 server.
-     *
-     * @param scopesSupported scopes
      */
     @Singular("scopeSupported")
     private Set<String> scopesSupported;
 
     /**
      * The set of claims supported by this OAuth2 server.
-     *
-     * @param claimsSupported claims this server may include in id_token
      */
     @Singular("claimSupported")
     private Set<String> claimsSupported;
 
     /**
      * Advertise support for rich authorization requests in server discovery metadata.
-     *
-     * @param authorizationDetailsTypesSupported support for rich authorization requests?
      */
     @Singular("authorizationDetailsTypeSupported")
     private Set<String> authorizationDetailsTypesSupported;
 
     /**
-     * The set of acr values supported by this OpenID Connect server.
-     *
-     * @param acrValues acr values this server may include in id_token
+     * The set of acr values supported by this OpenID Connect server. ACR values this server may include in id_token.
      */
     @Singular("acrValue")
     private List<String> acrValues;
 
     /**
      * The ui locales supported by this OpenID connect server.
-     *
-     * @param uiLocales supported ui locales
      */
     @Singular("uiLocale")
     private List<String> uiLocales;
 
     /**
      * Response modes supported by this OAuth2 server.
-     *
-     * @params responseModes response modes supported by the server
      */
     @Singular("responseMode")
     private Set<String> responseModes;
 
     /**
      * PKCE code challenge methods supported by server
-     *
-     * @param codeChallengesMethodSupported code challenge methods supported by this OAuth2 server
      */
     @Singular("codeChallengeMethodSupported")
     private Set<String> codeChallengeMethodsSupported;
@@ -145,8 +124,6 @@ public final class OpenIDConnectSdkConfiguration {
     /**
      * Lifetime in seconds for pushed authorization requests to this server.  This is the processing time for the client
      * to redirect to the authorization endpoint.
-     *
-     * @param authorizationRequestLifetimeSeconds lifetime in seconds
      */
     @Builder.Default
     private int authorizationRequestLifetimeSeconds = 60;
@@ -154,8 +131,6 @@ public final class OpenIDConnectSdkConfiguration {
     /**
      * Lifetime in seconds for the authorizations added to this server.  This is the lifetime of the authorization code
      * and the processing time for the client to retrieve tokens.
-     *
-     * @param authorizationLifetimeSeconds lifetime in seconds
      */
     @Builder.Default
     private int authorizationLifetimeSeconds = 60;
@@ -163,8 +138,6 @@ public final class OpenIDConnectSdkConfiguration {
     /**
      * Lifetime in seconds for id_token issued by this server.  This is the processing time for the client to check
      * the id_token's validity.
-     *
-     * @param idTokenLifetimeSeconds lifetime in seconds
      */
     @Builder.Default
     private int idTokenLifetimeSeconds = 120;
@@ -172,39 +145,29 @@ public final class OpenIDConnectSdkConfiguration {
     /**
      * Lifetime in seconds for access_token issued by this server.  This is the usage time for clients to use the
      * access_token towards the OAuth2-protected endpoints exposed by this server.
-     *
-     * @param accessTokenLifetimeSeconds lifetime in seconds
      */
     @Builder.Default
     private int accessTokenLifetimeSeconds = 120;
 
     /**
-     * The set of client's this OAuth2 server will accept requests from.
-     *
-     * @param clients OAuth2 clients
+     * The set of clients this OAuth2 server will accept requests from.
      */
     @Singular("client")
     private Set<ClientMetadata> clients;
 
     /**
      * Cache implementation for OAuth2 objects that need to be stored between client requests.
-     *
-     * @param cache cache implementation
      */
     private OpenIDConnectCache cache;
 
     /**
      * Audit implementation for this server.  See interface definition for hooks.
-     *
-     * @param auditLogger audit logger implementation
      */
     @Builder.Default
     private OpenIDConnectAuditLogger auditLogger = new NullAuditLogger();
 
     /**
      * Private key used to sign tokens.
-     *
-     * @param jwk private key
      */
     private JWK jwk;
 
@@ -216,8 +179,6 @@ public final class OpenIDConnectSdkConfiguration {
 
     /**
      * Require pushed authorization requests from clients.
-     *
-     * @param requirePushedAuthorizationRequests require pushed authorization requests?
      */
     @Builder.Default
     private boolean requirePushedAuthorizationRequests = true;
@@ -236,8 +197,7 @@ public final class OpenIDConnectSdkConfiguration {
 
     /**
      * Backward compatibility - avoid in new applications - ignore client_id parameter missing on pushed authorization requests
-     *
-     * @param disableClientIdCheckOnPARAuthorizationRequests require pushed authorization requests?
+     * TODO: remove in future versions
      */
     private boolean disableClientIdCheckOnPARAuthorizationRequests;
 

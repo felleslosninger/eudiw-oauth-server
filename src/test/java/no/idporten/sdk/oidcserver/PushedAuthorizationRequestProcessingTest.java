@@ -155,6 +155,27 @@ public class PushedAuthorizationRequestProcessingTest {
         }
     }
 
+    @Disabled // TODO
+    @Test
+    @DisplayName("then the ui_locales parameter is optional and locale is resolved automatically")
+    public void testUiLocalesResolved() {
+        MockRequest request = new MockRequest();
+        PushedAuthorizationRequest authorizationRequest = new PushedAuthorizationRequest(request.getHeaders(), request.getParameters());
+        openIDConnectSdk.validateUiLocales(authorizationRequest, ClientMetadata.builder().build());
+        assertEquals("nn", authorizationRequest.getResolvedUiLocale());
+    }
+
+    @Disabled // TODO
+    @Test
+    @DisplayName("then the ui_locales parameter resolves to default for invalid values")
+    public void tesInvbalidtUiLocales() {
+        MockRequest request = new MockRequest();
+        request.addParameter("ui_localeds", "foo bar");
+        PushedAuthorizationRequest authorizationRequest = new PushedAuthorizationRequest(request.getHeaders(), request.getParameters());
+        openIDConnectSdk.validateUiLocales(authorizationRequest, ClientMetadata.builder().build());
+        assertEquals("nn", authorizationRequest.getResolvedUiLocale());
+    }
+
     @Test
     @DisplayName("then the response_mode parameter is optional and default response_mode is query")
     public void testOptionalResponseModeResolved() {
@@ -334,11 +355,5 @@ public class PushedAuthorizationRequestProcessingTest {
         PushedAuthorizationRequest authorizationRequest = new PushedAuthorizationRequest(request.getHeaders(), request.getParameters());
         openIDConnectSdk.validate(authorizationRequest, clientMetadata);
     }
-
-    @Test
-    public void testGrant(){
-        // TODO: Implement test for grant processing
-    }
-
 
 }

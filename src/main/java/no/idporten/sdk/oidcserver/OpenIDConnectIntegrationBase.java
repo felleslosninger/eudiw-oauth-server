@@ -79,6 +79,7 @@ public class OpenIDConnectIntegrationBase implements OpenIDConnectIntegration {
         validateResponseType(authorizationRequest, clientMetadata);
         validateCodeChallenge(authorizationRequest, clientMetadata);
         validateScope(authorizationRequest, clientMetadata);
+        validateUiLocales(authorizationRequest, clientMetadata);
         validateResponseMode(authorizationRequest, clientMetadata);
         validateState(authorizationRequest, clientMetadata);
         validateNonce(authorizationRequest, clientMetadata);
@@ -129,7 +130,19 @@ public class OpenIDConnectIntegrationBase implements OpenIDConnectIntegration {
     }
 
 
-
+    @SuppressWarnings("unused")
+    protected void validateUiLocales(PushedAuthorizationRequest authorizationRequest, ClientMetadata clientMetadata) {
+        // TODO
+//        if (authorizationRequest.getUiLocales().isEmpty()) {
+//            authorizationRequest.setResolvedUiLocale(sdkConfiguration.getUiLocales().get(0));
+//        } else {
+//            authorizationRequest.setResolvedUiLocale(
+//                    authorizationRequest.getUiLocales().stream()
+//                            .filter(uiLocale -> sdkConfiguration.getUiLocales().contains(uiLocale))
+//                            .findFirst()
+//                            .orElse(sdkConfiguration.getUiLocales().get(0)));
+//        }
+    }
 
     @SuppressWarnings("unused")
     protected void validateResponseMode(PushedAuthorizationRequest authorizationRequest, ClientMetadata clientMetadata) {
@@ -616,7 +629,7 @@ public class OpenIDConnectIntegrationBase implements OpenIDConnectIntegration {
             throw new OAuth2Exception(OAuth2Exception.INVALID_REQUEST, "Empty or missing request.", 400);
         }
         if (!hasText(tokenRequest.getGrantType()) || !sdkConfiguration.getGrantTypesSupported().contains(tokenRequest.getGrantType())) {
-            throw new OAuth2Exception(OAuth2Exception.UNSUPPORTED_GRANT_TYPE, "Invalid parameter grant_type. Only authorization_code supported.", 400);
+            throw new OAuth2Exception(OAuth2Exception.UNSUPPORTED_GRANT_TYPE, "Invalid parameter grant_type. Supported: " + sdkConfiguration.getGrantTypesSupported(), 400);
         }
         if (!hasText(tokenRequest.getCode())) {
             throw new OAuth2Exception(OAuth2Exception.INVALID_REQUEST, "Invalid parameter code.", 400);

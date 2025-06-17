@@ -40,11 +40,17 @@ public class OpenIDConnectConfiguration implements InitializingBean {
     @NotNull
     private URI issuer;
 
+//    @NotEmpty
+//    private List<String> uiLocales;
+
     @NotEmpty
     private List<String> grantTypesSupported;
 
     @NotEmpty
     private List<String> scopesSupported;
+
+//    @NotEmpty
+//    private List<String> responseModesSupported = new ArrayList<>();
 
     @Min(1)
     private int parLifetimeSeconds = 60;
@@ -85,11 +91,12 @@ public class OpenIDConnectConfiguration implements InitializingBean {
                         .authorizationLifetimeSeconds(authorizationLifetimeSeconds)
                         .requirePkce(requirePkce)
                         .responseMode("query")
+//                        .uiLocales(uiLocales)
                         .scopesSupported(scopesSupported)
                         .authorizationDetailsTypeSupported("openid_credential")
                         .cache(new SimpleOpenIDConnectCache())
                         .auditLogger(auditService);
-        ;
+
         if (keyStore == null) {
             builder.jwk(generateServerECKey());
         } else {

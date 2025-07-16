@@ -29,8 +29,8 @@ public class OIDCClientProperties {
         if (ClientAuthenticationMethod.PRIVATE_KEY_JWT.equals(clientAuthenticationMethod) && keystore == null) {
             throw new IllegalArgumentException("Keystore needed for private_key_jwt");
         }
-        if (clientSecret == null) {
-            throw new IllegalArgumentException("Keystore needed for %s".formatted(clientAuthenticationMethod.getValue()));
+        if (clientSecret == null && (ClientAuthenticationMethod.CLIENT_SECRET_BASIC.equals(clientAuthenticationMethod) || ClientAuthenticationMethod.CLIENT_SECRET_POST.equals(clientAuthenticationMethod))) {
+            throw new IllegalArgumentException("Client secret needed for %s".formatted(clientAuthenticationMethod.getValue()));
         }
     }
 

@@ -190,7 +190,7 @@ public class OIDCProxyService {
             return new ClientSecretPost(oidcClientProperties.getClientID(), oidcClientProperties.getClientSecret());
         }
         if (ClientAuthenticationMethod.PRIVATE_KEY_JWT.equals(oidcClientProperties.getClientAuthenticationMethod())) {
-            return new PrivateKeyJWT(oidcClientProperties.getClientID(), URI.create(oidcIssuerProperties.issuer().getValue()), JWSAlgorithm.RS256, oidcClientProperties.getKeyProvider().privateKey(), oidcClientProperties.getKeyProvider().getKid(), (Provider) null);
+            return new PrivateKeyJWT(oidcClientProperties.getClientID(), URI.create(oidcIssuerProperties.issuer().getValue()), JWSAlgorithm.RS256, oidcClientProperties.getKeyProvider().privateKey(), oidcClientProperties.getKeyProvider().getAlias(), (Provider) null);
         }
         throw new OIDCProxyException(OAuth2Exception.SERVER_ERROR, "Unsupported client authentication method", HttpStatus.BAD_REQUEST);
 

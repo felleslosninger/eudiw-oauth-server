@@ -1,6 +1,14 @@
 package no.idporten.eudiw.oauthserver.proxy;
 
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.jwk.source.JWKSourceBuilder;
+import com.nimbusds.jose.proc.JWSKeySelector;
+import com.nimbusds.jose.proc.JWSVerificationKeySelector;
+import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod;
+import com.nimbusds.oauth2.sdk.jarm.JARMValidator;
+import com.nimbusds.openid.connect.sdk.validators.IDTokenValidator;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -13,6 +21,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
 
 import java.net.URI;
+import java.util.Set;
 
 @Configuration
 @Data
@@ -32,6 +41,9 @@ public class OIDCProxyProperties implements InitializingBean {
     @NotNull
     private OIDCClientProperties oidcClient;
 
+    private IDTokenValidator idTokenValidator;
+    private JARMValidator jarmValidator;
+
     @Override
     public void afterPropertiesSet() throws Exception {
         oidcClient.validate();
@@ -40,6 +52,14 @@ public class OIDCProxyProperties implements InitializingBean {
             KeyProvider keyProvider = new KeyProvider(keyStoreProvider.keyStore(), oidcClient.getKeystore().keyAlias(), oidcClient.getKeystore().keyPassword());
             oidcClient.setKeyProvider(keyProvider);
         }
+
+        JWKSource<SecurityContext> jwkSource = JWKSourceBuilder
+                .create(oidcIssuer.jwksUri().toURL())
+                .cache(24 * 60 * 60 * 1000,5000)
+                .build();
+        JWSKeySelector<SecurityContext> keySelector = new JWSVerificationKeySelector<>(Set.of(JWSAlgorithm.RS256), jwkSource);
+        idTokenValidator = new IDTokenValidator(oidcIssuer.issuer(), oidcClient.getClientID(), keySelector, null);
+        jarmValidator = new JARMValidator(oidcIssuer.issuer(), oidcClient.getClientID(), keySelector, null);
     }
 
 }

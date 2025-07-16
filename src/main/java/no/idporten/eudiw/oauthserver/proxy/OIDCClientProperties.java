@@ -16,12 +16,12 @@ import java.util.Objects;
 public class OIDCClientProperties {
 
     @NotNull
-    ClientID clientID;
+    private ClientID clientID;
     @NotNull
-    ClientAuthenticationMethod clientAuthenticationMethod;
-    Secret clientSecret;
-    KeyStoreProperties keystore;
-    KeyProvider keyProvider;
+    private ClientAuthenticationMethod clientAuthenticationMethod;
+    private Secret clientSecret;
+    private KeyStoreProperties keystore;
+    private KeyProvider keyProvider;
 
     public void validate() throws Exception {
         Objects.requireNonNull(clientID);

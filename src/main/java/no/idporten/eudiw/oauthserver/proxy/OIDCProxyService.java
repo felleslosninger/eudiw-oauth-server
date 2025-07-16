@@ -8,12 +8,13 @@ import com.nimbusds.oauth2.sdk.*;
 import com.nimbusds.oauth2.sdk.auth.*;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
-import com.nimbusds.oauth2.sdk.jarm.JARMValidator;
 import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
-import com.nimbusds.openid.connect.sdk.*;
+import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
+import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
+import com.nimbusds.openid.connect.sdk.OIDCTokenResponseParser;
+import com.nimbusds.openid.connect.sdk.Prompt;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
-import com.nimbusds.openid.connect.sdk.validators.IDTokenValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.idporten.sdk.oidcserver.OAuth2Exception;
@@ -30,7 +31,7 @@ import java.security.Provider;
 import java.util.Objects;
 
 /**
- * Integrates with ID-porten.
+ * Integrates with OIDC server.
  */
 @RequiredArgsConstructor
 @Slf4j
@@ -90,8 +91,7 @@ public class OIDCProxyService {
      */
     public Authorization handleAuthorizationResponse(PushedAuthorizationRequest clientAuthorizationRequest, MultiValueMap<String, String> parameters, ProtocolVerifiers protocolVerifiers) {
         try {
-            JARMValidator jarmValidator = new JARMValidator(oidcProxyProperties.getOidcIssuer().issuer(), oidcProxyProperties.getOidcClient().getClientID(), JWSAlgorithm.RS256, oidcProxyProperties.getOidcIssuer().jwksUri().toURL());
-            com.nimbusds.oauth2.sdk.AuthorizationResponse authorizationResponse = com.nimbusds.oauth2.sdk.AuthorizationResponse.parse(URI.create("/callback"), parameters, jarmValidator);
+            com.nimbusds.oauth2.sdk.AuthorizationResponse authorizationResponse = com.nimbusds.oauth2.sdk.AuthorizationResponse.parse(URI.create("/callback"), parameters, oidcProxyProperties.getJarmValidator());
             if (!Objects.equals(protocolVerifiers.state(), authorizationResponse.getState())) {
                 throw new OIDCProxyException(OAuth2Exception.INVALID_REQUEST, "Invalid state. State does not match state from original request.", HttpStatus.BAD_REQUEST);
             }
@@ -126,8 +126,7 @@ public class OIDCProxyService {
     }
 
     private IDTokenClaimsSet validateIDToken(JWT idToken, ProtocolVerifiers protocolVerifiers) throws Exception {
-        IDTokenValidator idTokenValidator = new IDTokenValidator(oidcProxyProperties.getOidcIssuer().issuer(), oidcProxyProperties.getOidcClient().getClientID(), JWSAlgorithm.RS256, oidcProxyProperties.getOidcIssuer().jwksUri().toURL());
-        IDTokenClaimsSet idTokenClaimsSet = idTokenValidator.validate(idToken, protocolVerifiers.nonce());
+        IDTokenClaimsSet idTokenClaimsSet = oidcProxyProperties.getIdTokenValidator().validate(idToken, protocolVerifiers.nonce());
         String personIdentifier = idTokenClaimsSet.getStringClaim("pid");
         if (! PersonIdentifierValidator.isValid(personIdentifier)) {
             throw new OIDCProxyException(OAuth2Exception.SERVER_ERROR, "Invalid person identifier", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -137,7 +136,6 @@ public class OIDCProxyService {
 
     private Authorization buildAuthorization(PushedAuthorizationRequest authorizationRequest, OIDCTokens oidcTokens, IDTokenClaimsSet idTokenClaimsSet) throws BadJOSEException, JOSEException {
         final String personIdentifier = idTokenClaimsSet.getStringClaim("pid");
-//         validatePersonIdentifier(personIdentifier);
         return Authorization.builder()
                 .sub(personIdentifier)
                 .acr(idTokenClaimsSet.getACR().getValue())

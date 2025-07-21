@@ -17,7 +17,7 @@ public class RedisOpenIDConnectCache implements OpenIDConnectCache {
     @Value("${spring.application.name}")
     private String applicationName;
 
-    private final Cache cache;
+    private final RedisCache cache;
 
     protected String parCacheKey(String key) {
         return applicationName + ":par:" + key;

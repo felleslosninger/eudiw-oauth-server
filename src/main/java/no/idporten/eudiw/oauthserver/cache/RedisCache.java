@@ -10,11 +10,10 @@ import java.time.Duration;
 
 @Slf4j
 @RequiredArgsConstructor
-public class RedisCache implements Cache {
+public class RedisCache {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
-    @Override
     public void put(String cacheKey, Object object, Duration duration) {
         try {
             redisTemplate.opsForValue().set(cacheKey, object, duration);
@@ -24,7 +23,6 @@ public class RedisCache implements Cache {
         }
     }
 
-    @Override
     public Object get(String cacheKey) {
         try {
             return redisTemplate.opsForValue().get(cacheKey);
@@ -34,7 +32,6 @@ public class RedisCache implements Cache {
         }
     }
 
-    @Override
     public Object remove(String cacheKey) {
         try {
             return redisTemplate.opsForValue().getAndDelete(cacheKey);

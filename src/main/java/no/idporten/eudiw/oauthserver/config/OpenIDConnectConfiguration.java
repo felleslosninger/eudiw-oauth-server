@@ -8,11 +8,14 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.idporten.eudiw.oauthserver.audit.AuditService;
+import no.idporten.eudiw.oauthserver.cache.SimpleOpenIDConnectCache;
 import no.idporten.eudiw.oauthserver.crypto.KeyStoreProperties;
 import no.idporten.eudiw.oauthserver.crypto.KeyStoreProvider;
 import no.idporten.eudiw.oauthserver.server.OAuth2AuthorizationServer;
+import no.idporten.sdk.oidcserver.cache.OpenIDConnectCache;
 import no.idporten.sdk.oidcserver.config.OpenIDConnectSdkConfiguration;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -76,7 +79,7 @@ public class OpenIDConnectConfiguration implements InitializingBean {
     }
 
     @Bean
-    public OpenIDConnectSdkConfiguration openIDConnectSdkConfig(AuditService auditService) throws Exception {
+    public OpenIDConnectSdkConfiguration openIDConnectSdkConfig(AuditService auditService, OpenIDConnectCache openIDConnectCache) throws Exception {
         OpenIDConnectSdkConfiguration.OpenIDConnectSdkConfigurationBuilder builder =
                 OpenIDConnectSdkConfiguration.builder()
                         .internalId(internalId)
@@ -93,7 +96,7 @@ public class OpenIDConnectConfiguration implements InitializingBean {
 //                        .uiLocales(uiLocales)
                         .scopesSupported(scopesSupported)
                         .authorizationDetailsTypeSupported("openid_credential")
-                        .cache(new SimpleOpenIDConnectCache())
+                        .cache(openIDConnectCache)
                         .auditLogger(auditService);
 
         if (keyStore == null) {

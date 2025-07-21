@@ -1,4 +1,4 @@
-package no.idporten.eudiw.oauthserver.config;
+package no.idporten.eudiw.oauthserver.cache;
 
 import lombok.Getter;
 import no.idporten.sdk.oidcserver.cache.OpenIDConnectCache;
@@ -9,10 +9,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *  Cache implementation used for testing.  TODO erstatt med redis
+ *  Cache implementation used for testing.
  */
 @Getter
-class SimpleOpenIDConnectCache implements OpenIDConnectCache {
+public class SimpleOpenIDConnectCache implements OpenIDConnectCache {
 
     private Map<String, PushedAuthorizationRequest> authorizationRequestMap = new HashMap<>();
     private Map<String, Authorization> code2authorizationMap = new HashMap<>();

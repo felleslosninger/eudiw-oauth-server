@@ -1,0 +1,23 @@
+package no.idporten.eudiw.oauthserver.api.internal;
+
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class PreAuthorizationResponse {
+
+    @JsonProperty("pre-authorized_code")
+    private String preAuthorizedCode;
+    @JsonProperty("expires_in")
+    private long expiresInSeconds;
+
+}

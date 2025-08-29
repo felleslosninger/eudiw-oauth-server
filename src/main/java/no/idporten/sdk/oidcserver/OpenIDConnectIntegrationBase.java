@@ -520,7 +520,7 @@ public class OpenIDConnectIntegrationBase implements OpenIDConnectIntegration {
         }
     }
 
-    private void validateAuthorization(Authorization authorization) {
+    protected void validateAuthorization(Authorization authorization) {
         Objects.requireNonNull(authorization);
         Objects.requireNonNull(authorization.getAud(), "authorization must have an audience");
         Objects.requireNonNull(authorization.getSub(), "authorization must have a sub");
@@ -654,12 +654,9 @@ public class OpenIDConnectIntegrationBase implements OpenIDConnectIntegration {
             }
         }
         // pre-authorized code flow specific
-        if ("urn:ietf:params:oauth:grant-type:pre-authorized_code".equals(tokenRequest.getGrantType())) {
+        else if ("urn:ietf:params:oauth:grant-type:pre-authorized_code".equals(tokenRequest.getGrantType())) {
             if (!hasText(tokenRequest.getPreAuthorizedCode())) {
                 throw new OAuth2Exception(OAuth2Exception.INVALID_REQUEST, "Invalid parameter pre-authorized_code.", 400);
-            }
-            if (!hasText(tokenRequest.getTxCode())) {
-                throw new OAuth2Exception(OAuth2Exception.INVALID_REQUEST, "Invalid parameter tx_code.", 400);
             }
             if (hasText(tokenRequest.getCode())) {
                 throw new OAuth2Exception(OAuth2Exception.INVALID_REQUEST, "Illegal parameter code.", 400);

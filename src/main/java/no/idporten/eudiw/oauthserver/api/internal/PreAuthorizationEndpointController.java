@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.idporten.eudiw.oauthserver.server.OAuth2AuthorizationServer;
 import no.idporten.sdk.oidcserver.OAuth2Exception;
+import no.idporten.sdk.oidcserver.protocol.PreAuthorizationRequest;
+import no.idporten.sdk.oidcserver.protocol.PreAuthorizationResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

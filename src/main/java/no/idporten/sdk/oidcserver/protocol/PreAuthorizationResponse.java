@@ -1,5 +1,4 @@
-package no.idporten.eudiw.oauthserver.api.internal;
-
+package no.idporten.sdk.oidcserver.protocol;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

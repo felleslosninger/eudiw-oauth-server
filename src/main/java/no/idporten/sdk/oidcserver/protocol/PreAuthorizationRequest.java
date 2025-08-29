@@ -1,4 +1,4 @@
-package no.idporten.eudiw.oauthserver.api.internal;
+package no.idporten.sdk.oidcserver.protocol;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -13,6 +13,8 @@ public class PreAuthorizationRequest {
 
     @JsonProperty("sub")
     private String sub;
+    @JsonProperty("aud")
+    private String aud;
     @JsonProperty("scope")
     private List<String> scope;
     @JsonProperty("tx_code_challenge")

@@ -1,7 +1,5 @@
 package no.idporten.eudiw.oauthserver.server;
 
-import no.idporten.eudiw.oauthserver.api.internal.PreAuthorizationRequest;
-import no.idporten.eudiw.oauthserver.api.internal.PreAuthorizationResponse;
 import no.idporten.sdk.oidcserver.OAuth2Exception;
 import no.idporten.sdk.oidcserver.OpenIDConnectIntegrationBase;
 import no.idporten.sdk.oidcserver.client.ClientMetadata;
@@ -45,7 +43,9 @@ public class OAuth2AuthorizationServer extends OpenIDConnectIntegrationBase {
         if (hasText(preAuthorization.getCodeChallenge()) && !validateCodeVerifier(tokenRequest.getTxCode(), preAuthorization.getCodeChallenge())) {
             throw new OAuth2Exception(OAuth2Exception.INVALID_GRANT, "Invalid grant. Invalid transaction code.", 400);
         }
-        preAuthorization.setAud(tokenRequest.getResource());
+        if (tokenRequest.hasResourceIndicator()) {
+            preAuthorization.setAud(tokenRequest.getResource());
+        }
         try {
             TokenResponse tokenResponse = createTokenResponse(preAuthorization);
             getSDKConfiguration().getAuditLogger().auditTokenResponse(tokenResponse);
@@ -68,6 +68,7 @@ public class OAuth2AuthorizationServer extends OpenIDConnectIntegrationBase {
         String preAuthorizationCode = generateId();
         Authorization preAuthorization = Authorization.builder()
                 .sub(preAuthorizationRequest.getSub())
+                .aud(preAuthorizationRequest.getAud())
                 .scope(String.join(" ", preAuthorizationRequest.getScope()))
                 .codeChallenge(preAuthorizationRequest.getTxCodeChallenge())
                 .attribute("tx_id", preAuthorizationRequest.getTxId())

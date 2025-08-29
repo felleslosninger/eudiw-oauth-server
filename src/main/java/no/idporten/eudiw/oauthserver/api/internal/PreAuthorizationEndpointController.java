@@ -40,7 +40,7 @@ public class PreAuthorizationEndpointController {
         if (!headers.containsKey(X_API_KEY_HEADER)) {
             throw new OAuth2Exception(OAuth2Exception.INVALID_REQUEST, "Missing API key header.", 401);
         }
-        if (!Objects.equals("eudiw", headers.getFirst(X_API_KEY_HEADER))) {
+        if (!Objects.equals(openIDConnectSdk.getSDKConfiguration().getApiKey(), headers.getFirst(X_API_KEY_HEADER))) {
             throw new OAuth2Exception(OAuth2Exception.INVALID_REQUEST, "Invalid API key.", 401);
         }
     }

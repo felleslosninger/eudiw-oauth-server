@@ -39,7 +39,7 @@ public class OAuth2AuthorizationServer extends OpenIDConnectIntegrationBase {
         if (!preAuthorization.isValidNow()) {
             throw new OAuth2Exception(OAuth2Exception.INVALID_GRANT, "Invalid grant. The grant has expired.", 400);
         }
-        getSDKConfiguration().getCache().removeAuthorization(tokenRequest.getCode());
+        getSDKConfiguration().getCache().removeAuthorization(tokenRequest.getPreAuthorizedCode());
         if (hasText(preAuthorization.getCodeChallenge()) && !validateCodeVerifier(tokenRequest.getTxCode(), preAuthorization.getCodeChallenge())) {
             throw new OAuth2Exception(OAuth2Exception.INVALID_GRANT, "Invalid grant. Invalid transaction code.", 400);
         }

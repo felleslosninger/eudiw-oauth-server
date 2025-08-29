@@ -74,6 +74,7 @@ public class TokenRequest implements AuthenticatedRequest, ResourceIndicatorSupp
                 .attribute("tx_code", txCode == null ? null : txCode.replaceAll("[\\w]", "*"))
                 .attribute("grant_type", grantType)
                 .attribute("redirect_uri", redirectUri)
+                .attribute("resource", resource)
                 .build();
     }
 

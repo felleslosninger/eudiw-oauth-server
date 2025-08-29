@@ -71,7 +71,7 @@ public class TokenRequest implements AuthenticatedRequest, ResourceIndicatorSupp
                 .attribute("code_verifier", codeVerifier)
                 .attribute("code", code)
                 .attribute("pre-authorized_code", preAuthorizedCode)
-                .attribute("tx_code", txCode) // TODO skal denne maskeres?
+                .attribute("tx_code", txCode == null ? null : txCode.replaceAll("[\\w]", "*"))
                 .attribute("grant_type", grantType)
                 .attribute("redirect_uri", redirectUri)
                 .build();

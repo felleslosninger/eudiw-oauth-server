@@ -54,7 +54,7 @@ class PreAuthorizedCodeFlowTest {
         verify(auditLogger).auditAuthorization(any(Authorization.class));
         final String preAuthorizedCode = preAuthorizationResponse.getPreAuthorizedCode();
 
-        // 2. Process token request
+        // 2. Process token request w/pre-authorized_code
         ClientMetadata clientMetadata = TestUtils.defaultClientMetadata();
         MockRequest request = new MockRequest();
         request.addParameter("client_id", clientMetadata.getClientId());

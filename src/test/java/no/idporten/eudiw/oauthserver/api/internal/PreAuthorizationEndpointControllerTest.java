@@ -70,7 +70,22 @@ public class PreAuthorizationEndpointControllerTest {
                 .andExpect(jsonPath("$.error_description").value(Matchers.containsString("Invalid API key")));
     }
 
-    @DisplayName("then received data is stored in cache and a pre-authorized code is returned for valid request")
+    @DisplayName("then requests with invalid pre-authorization attributes is rejected")
+    @Test
+    void testInvalidPreAuthorizationAttributes() throws Exception {
+        mockMvc.perform(post("/api/v1/pre-authorizations")
+                        .header("X-API-KEY", "junit")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content("""
+                                {
+                                    "who": "cares"
+                                 }"""))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.error").value("invalid_request"));
+    }
+
+    @DisplayName("then received data is stored in cache and a pre-authorized code is returned")
     @Test
     void testUploadAuthorizationAndReceivePreAuthorizedCode() throws Exception {
         MvcResult result = mockMvc.perform(post("/api/v1/pre-authorizations")
@@ -97,10 +112,7 @@ public class PreAuthorizationEndpointControllerTest {
                 () -> assertEquals("foo", authorization.getAud()),
                 () -> assertEquals("scp1 scp2", authorization.getScope()),
                 () -> assertEquals("tid", authorization.getAttributes().get("tx_id"))
-
-
         );
-
     }
 
 }
